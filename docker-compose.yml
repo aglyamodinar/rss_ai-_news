@@ -1,0 +1,10 @@
+services:
+  rss-news-bot:
+    build: .
+    container_name: rss-news-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./bot_state.json:/app/bot_state.json
+    command: ["python", "-u", "bot.py"]
