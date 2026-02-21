@@ -69,6 +69,12 @@ docker compose logs -f rss-news-bot
 
 State in Docker is stored in `./data/bot_state.json` (mounted to `/app/data`).
 
+Daily per-source AI/LLM scan (manual run):
+
+```bash
+docker compose run --rm rss-news-digest
+```
+
 Commands in Telegram:
 
 ```text
@@ -123,6 +129,12 @@ Add:
 
 ```cron
 0 8 * * * cd /Users/dinar_mac_mini/Documents/Python\ 2026/RSS\ Новости && /usr/bin/python3 digest.py >> digest.log 2>&1
+```
+
+For server-side Docker cron at 09:00 (per-source AI/LLM updates):
+
+```cron
+0 9 * * * cd /root/rss_ai-_news && /usr/bin/docker compose run --rm rss-news-digest >> /root/rss_ai-_news/digest.log 2>&1
 ```
 
 ## Deploy on Timeweb (Docker)

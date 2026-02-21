@@ -10,5 +10,6 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY bot.py /app/bot.py
 COPY digest.py /app/digest.py
+COPY daily_source_digest.py /app/daily_source_digest.py
 
 CMD ["python", "-u", "bot.py"]
