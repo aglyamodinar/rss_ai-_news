@@ -26,7 +26,7 @@ from digest import (
 )
 
 
-STATE_FILE = Path("bot_state.json")
+STATE_FILE_DEFAULT = Path("bot_state.json")
 
 SOURCES = {
     "atlantic": {
@@ -390,12 +390,14 @@ def main() -> int:
     default_chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
     openrouter_key = os.getenv("OPENROUTER_API_KEY", "").strip()
     openrouter_model = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini").strip()
+    state_file = Path(os.getenv("BOT_STATE_FILE", str(STATE_FILE_DEFAULT))).expanduser()
 
     if not tg_token:
         print("Set TELEGRAM_BOT_TOKEN in .env")
         return 2
 
-    state = load_state(STATE_FILE)
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    state = load_state(state_file)
     state.setdefault("summary_cache", {})
     offset = int(state.get("last_update_id", 0)) + 1
 
@@ -430,7 +432,7 @@ def main() -> int:
                     if isinstance(cache, dict) and len(cache) > 3000:
                         keep = list(cache.items())[-2000:]
                         state["summary_cache"] = {k: v for k, v in keep}
-                    save_state(STATE_FILE, state)
+                    save_state(state_file, state)
             except (HTTPError, URLError, TimeoutError, json.JSONDecodeError, RuntimeError) as err:
                 print(f"poll error: {err}")
                 time.sleep(3)

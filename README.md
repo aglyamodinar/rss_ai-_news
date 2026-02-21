@@ -67,6 +67,8 @@ docker compose up -d --build
 docker compose logs -f rss-news-bot
 ```
 
+State in Docker is stored in `./data/bot_state.json` (mounted to `/app/data`).
+
 Commands in Telegram:
 
 ```text
@@ -92,6 +94,12 @@ Optional pricing env vars for estimation (USD per 1M tokens):
 ```env
 OPENROUTER_PRICE_INPUT_PER_M=0.15
 OPENROUTER_PRICE_OUTPUT_PER_M=0.60
+```
+
+Optional:
+
+```env
+BOT_STATE_FILE=/app/data/bot_state.json
 ```
 
 Available source ids:
