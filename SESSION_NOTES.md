@@ -75,3 +75,44 @@
 - If no new items in state, digest can send `Sent 0 items`.
 - Brookings feed URLs redirect; API endpoint is used instead.
 - Employment Studies RSS is often empty; HTML fallback is used.
+
+---
+
+# Session Notes (2026-02-21)
+
+## Deployment status (Timeweb)
+- Server: Timeweb Cloud, `1 vCPU / 1 GB RAM / 15 GB NVMe`.
+- Repo on server: `/root/rss_ai-_news`.
+- Dockerized services:
+  - `rss-news-bot` (long polling bot, always on).
+  - `rss-news-digest` (one-shot daily per-source digest runner).
+- Docker state storage:
+  - bot state: `./data/bot_state.json` (via `BOT_STATE_FILE=/app/data/bot_state.json`)
+  - daily digest state: `./data/source_digest_state.json`
+
+## Git milestones
+- `0bb13b8` Add Docker deployment for Telegram bot and update docs
+- `51fccef` Fix Docker bot state path via BOT_STATE_FILE and data volume
+- `08d7297` Add daily per-source AI/LLM digest runner for cron
+- `f28b1fb` Add RU summaries to daily per-source digest and Moscow cron example
+
+## Daily schedule
+- Cron configured on server (`root`) with Moscow timezone:
+  - `CRON_TZ=Europe/Moscow`
+  - `0 9 * * * cd /root/rss_ai-_news && /usr/bin/docker compose run --rm rss-news-digest python -u daily_source_digest.py --state-file /app/data/source_digest_state.json --ru-summary-limit-per-source 5 >> /root/rss_ai-_news/digest.log 2>&1`
+
+## Recovery / start from current position
+- On server:
+  - `cd /root/rss_ai-_news && git pull`
+  - `docker compose up -d --build rss-news-bot`
+  - `docker compose ps`
+  - `crontab -l`
+- Manual daily digest test:
+  - `docker compose run --rm rss-news-digest python -u daily_source_digest.py --state-file /app/data/source_digest_state.json --ru-summary-limit-per-source 5 --dry-run`
+- Live bot logs:
+  - `docker compose logs -f rss-news-bot`
+- Daily digest logs:
+  - `tail -n 200 /root/rss_ai-_news/digest.log`
+
+## Important ops note
+- If Telegram shows repeated `HTTP 409: Conflict`, another polling client is active with the same bot token. Stop duplicate clients or rotate token in `@BotFather`.
