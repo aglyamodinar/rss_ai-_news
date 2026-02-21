@@ -75,6 +75,12 @@ Daily per-source AI/LLM scan (manual run):
 docker compose run --rm rss-news-digest
 ```
 
+With forced RU summaries for top new items per source:
+
+```bash
+docker compose run --rm rss-news-digest --ru-summary-limit-per-source 5
+```
+
 Commands in Telegram:
 
 ```text
@@ -134,6 +140,13 @@ Add:
 For server-side Docker cron at 09:00 (per-source AI/LLM updates):
 
 ```cron
+0 9 * * * cd /root/rss_ai-_news && /usr/bin/docker compose run --rm rss-news-digest >> /root/rss_ai-_news/digest.log 2>&1
+```
+
+For strict 09:00 Moscow time:
+
+```cron
+CRON_TZ=Europe/Moscow
 0 9 * * * cd /root/rss_ai-_news && /usr/bin/docker compose run --rm rss-news-digest >> /root/rss_ai-_news/digest.log 2>&1
 ```
 
